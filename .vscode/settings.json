@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "e:\\classpath\\jakarta.servlet-api-6.1.0-M2.jar"
+    ]
+}
