@@ -1,9 +1,12 @@
 package mg.ituprom16.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.util.Vector;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +24,18 @@ public class FrontController extends HttpServlet {
         }
     }
 
-    public void getListeController() {
-            
+    public void getListeController() throws MalformedURLException, ClassNotFoundException {
+        ServletContext servletContext = getServletContext();
+        String classpath = servletContext.getResource(this.packageSource).getPath();
+        File classPathDirectory = new File(classpath);
+        this.listeController = new Vector<Class>();
+        for(File file : classPathDirectory.listFiles()) {
+            if (file.isFile() && file.getName().endsWith(".class")) {
+                String className = file.getName().substring(0, file.getName().length() - 6);
+                Class<?> class1 = Thread.currentThread().getContextClassLoader().loadClass(className);
+                
+            }
+        }    
     }
 
     @Override
