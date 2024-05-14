@@ -13,9 +13,16 @@ public class FrontController extends HttpServlet {
     String packageSource;
     Vector<Class> listeController;
 
-    public Vector<Class> getListeController() {
-        Vector<Class> lsController;
-        return lsController;
+    public void init() {
+        try {
+            this.packageSource = this.getInitParameter("package-source");    
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+
+    public void getListeController() {
+            
     }
 
     @Override
