@@ -13,6 +13,11 @@ public class FrontController extends HttpServlet {
     String packageSource;
     Vector<Class> listeController;
 
+    public Vector<Class> getListeController() {
+        Vector<Class> lsController;
+        return lsController;
+    }
+
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         this.processRequest(req, resp);
