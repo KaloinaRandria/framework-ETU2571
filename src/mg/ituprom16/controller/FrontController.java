@@ -22,7 +22,7 @@ public class FrontController extends HttpServlet {
         try {
             this.packageSource = this.getInitParameter("package-source");    
         } catch (Exception e) {
-            // TODO: handle exception
+            throw new RuntimeException();
         }
     }
 
