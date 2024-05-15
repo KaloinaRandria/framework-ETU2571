@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,20 +25,28 @@ public class FrontController extends HttpServlet {
         }
     }
 
+    public String modifierClassPath(String classpath) {
+        classpath = classpath.substring(1);
+        classpath = classpath.replace("%20", " ");
+        return classpath;
+    }  
+
     public void getListeController() throws MalformedURLException, ClassNotFoundException {
         ServletContext servletContext = getServletContext();
-        String classpath = servletContext.getResource(this.packageSource).getPath();
+        String classpath =this.modifierClassPath(servletContext.getResource(this.packageSource).getPath());
         File classPathDirectory = new File(classpath);
         this.listeController = new Vector<Class>();
+        
         for(File file : classPathDirectory.listFiles()) {
             if (file.isFile() && file.getName().endsWith(".class")) {
                 String className = file.getName().substring(0, file.getName().length() - 6);
-                Class<?> class1 = Thread.currentThread().getContextClassLoader().loadClass(className);
+                Class<?> class1 = Thread.currentThread().getContextClassLoader().loadClass(this.packageSource.split("classes/")[1].replace("/", ".") + className);
                 if (class1.isAnnotationPresent(Controller.class)) {
                     this.listeController.add(class1);
                 }
             }
         }    
+        
     }
 
     @Override
@@ -76,9 +83,9 @@ public class FrontController extends HttpServlet {
 
     protected void processRequest (HttpServletRequest req , HttpServletResponse resp) throws ServletException, IOException, ClassNotFoundException {
         PrintWriter out = resp.getWriter();
-        out.println(req.getRequestURL());
+        // out.println(req.getRequestURL());
         String print = "";
-        if (this.listeController.equals(null)) {
+        if (this.listeController != null) {
             for (int i = 0; i < this.listeController.size(); i++) {
                 print += listeController.elementAt(i).getName()+"\n"; 
             }
