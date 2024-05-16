@@ -1,6 +1,7 @@
 {
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "e:\\classpath\\jakarta.servlet-api-6.1.0-M2.jar"
+        "e:\\classpath\\jakarta.servlet-api-6.1.0-M2.jar",
+        "/home/kaloina/classpath/jakarta.servlet-api-6.1.0-M2.jar"
     ]
 }
