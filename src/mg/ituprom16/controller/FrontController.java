@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import jakarta.servlet.ServletContext;
@@ -14,29 +15,29 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import mg.ituprom16.annotations.Controller;
 import mg.ituprom16.utilitaire.Mapping;
+import mg.ituprom16.utilitaire.Utils;
 
 public class FrontController extends HttpServlet {
     String packageSource;
     Vector<Class<?>> listeController;
     HashMap<String,Mapping> mapping;
 
-    public void init() {
+    public void init() throws ServletException {
         try {
-            this.packageSource = this.getInitParameter("package-source");    
+            this.packageSource = this.getInitParameter("package-source");
+            this.getListeController();
+            this.mapping = new HashMap<>();
+            Utils.scanAllClasses(listeController, this.mapping);
         } catch (Exception e) {
-            throw new RuntimeException();
+            e.getMessage();
         }
     }
 
-    public String modifierClassPath(String classpath) {
-        classpath = classpath.substring(1);
-        classpath = classpath.replace("%20", " ");
-        return classpath;
-    }  
+    
 
     public void getListeController() throws MalformedURLException, ClassNotFoundException {
         ServletContext servletContext = getServletContext();
-        String classpath =this.modifierClassPath(servletContext.getResource(this.packageSource).getPath());
+        String classpath =Utils.modifierClassPath(servletContext.getResource(this.packageSource).getPath());
         File classPathDirectory = new File(classpath);
         this.listeController = new Vector<Class<?>>();
         
@@ -49,7 +50,6 @@ public class FrontController extends HttpServlet {
                 }
             }
         }    
-        
     }
 
     @Override
@@ -57,13 +57,10 @@ public class FrontController extends HttpServlet {
         try {
             this.processRequest(req, resp);
         } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ServletException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -73,13 +70,10 @@ public class FrontController extends HttpServlet {
         try {
             this.processRequest(req, resp);
         } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ServletException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -88,17 +82,27 @@ public class FrontController extends HttpServlet {
         PrintWriter out = resp.getWriter();
         // out.println(req.getRequestURL());
         String print = "";
-        if (this.listeController != null) {
-            for (int i = 0; i < this.listeController.size(); i++) {
-                print += listeController.elementAt(i).getName()+"\n"; 
-            }
+        // if (this.listeController != null) {
+        //     for (int i = 0; i < this.listeController.size(); i++) {
+        //         print += listeController.elementAt(i).getName()+"\n"; 
+        //     }
+        // }
+        // else {
+        //     for (int i = 0; i < this.listeController.size(); i++) {
+        //          print += listeController.elementAt(i).getName()+"\n";               
+        //     }
+        // }
+        if (this.mapping != null) {
+            for(Map.Entry<String,Mapping> entry : mapping.entrySet()) {
+                String key = entry.getKey();
+                Mapping value = entry.getValue();
+    
+                print += key + ": " + value.getClassName() + " with " + value.getMethodName() + "\n";
+            }    
+        } else {
+            print += "mapping is Null";
         }
-        else {
-            this.getListeController();
-            for (int i = 0; i < this.listeController.size(); i++) {
-                 print += listeController.elementAt(i).getName()+"\n";               
-            }
-        }
+
         out.println(print);
         out.close();
     }

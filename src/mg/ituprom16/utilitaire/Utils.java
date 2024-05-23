@@ -7,6 +7,11 @@ import java.util.List;
 import mg.ituprom16.annotations.Get;
 
 public class Utils {
+    public static String modifierClassPath(String classpath) {
+        classpath = classpath.substring(1);
+        classpath = classpath.replace("%20", " ");
+        return classpath;
+    } 
     public static void scanClass(Class<?> classController , HashMap<String,Mapping> mapping) {
         Method[] methods = classController.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
