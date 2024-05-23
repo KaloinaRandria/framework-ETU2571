@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.Vector;
 
 import jakarta.servlet.ServletContext;
@@ -12,10 +13,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import mg.ituprom16.annotations.Controller;
+import mg.ituprom16.utilitaire.Mapping;
 
 public class FrontController extends HttpServlet {
     String packageSource;
     Vector<Class> listeController;
+    HashMap<String,Mapping> mapping;
 
     public void init() {
         try {
