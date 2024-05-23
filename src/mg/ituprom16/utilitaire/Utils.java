@@ -2,6 +2,7 @@ package mg.ituprom16.utilitaire;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 
 import mg.ituprom16.annotations.Get;
 
@@ -15,4 +16,10 @@ public class Utils {
             }
         }
     }
+
+    public static void scanAllClasses(List<Class<?>> controllerList , HashMap<String,Mapping> mapping) {
+        for (int i = 0; i < controllerList.size(); i++) {
+            scanClass(controllerList.get(i), mapping);
+        }
+    }    
 }

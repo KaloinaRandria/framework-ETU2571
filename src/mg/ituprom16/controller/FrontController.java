@@ -17,7 +17,7 @@ import mg.ituprom16.utilitaire.Mapping;
 
 public class FrontController extends HttpServlet {
     String packageSource;
-    Vector<Class> listeController;
+    Vector<Class<?>> listeController;
     HashMap<String,Mapping> mapping;
 
     public void init() {
@@ -38,7 +38,7 @@ public class FrontController extends HttpServlet {
         ServletContext servletContext = getServletContext();
         String classpath =this.modifierClassPath(servletContext.getResource(this.packageSource).getPath());
         File classPathDirectory = new File(classpath);
-        this.listeController = new Vector<Class>();
+        this.listeController = new Vector<Class<?>>();
         
         for(File file : classPathDirectory.listFiles()) {
             if (file.isFile() && file.getName().endsWith(".class")) {
