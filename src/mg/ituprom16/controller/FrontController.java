@@ -51,7 +51,7 @@ public class FrontController extends HttpServlet {
                     for (int i = 0; i < methods.length; i++) {
                         if (methods[i].isAnnotationPresent(Get.class)) {
                             Get getAnnot = methods[i].getAnnotation(Get.class);
-                            this.mapping.put(getAnnot.value(), new Mapping(class1.getName(), methods[i].getName())); 
+                            this.mapping.put(getAnnot.value(), new Mapping(class1.getName(), methods[i].getName()));
                         }
                     }
                 }
@@ -90,24 +90,39 @@ public class FrontController extends HttpServlet {
         PrintWriter out = resp.getWriter();
         // out.println(req.getRequestURL());
         String print = "";
+        StringBuffer requestURL = req.getRequestURL();
+        String[] urlSplitter = requestURL.toString().split("/");
+        String getValue = urlSplitter[urlSplitter.length - 1];
+
+        if (this.mapping.containsKey(getValue)) {
+            Mapping map = this.mapping.get(getValue);
+            print += requestURL.toString() + "\n";
+            print += map.getClassName() + "\n";
+            print += map.getMethodName() + "\n";
+
+        } else {
+            print = "404";
+        }
+
         // if (this.listeController != null) {
-        //     for (int i = 0; i < this.listeController.size(); i++) {
-        //         print += listeController.elementAt(i).getName() + "\n";
-        //     }
+        // for (int i = 0; i < this.listeController.size(); i++) {
+        // print += listeController.elementAt(i).getName() + "\n";
+        // }
         // } else {
-        //     print += "Aucun controller trouve";
+        // print += "Aucun controller trouve";
         // }
 
-        if (this.mapping != null) {
-            for (Map.Entry<String, Mapping> entry : mapping.entrySet()) {
-                String key = entry.getKey();
-                Mapping value = entry.getValue();
+        // if (this.mapping != null) {
+        // for (Map.Entry<String, Mapping> entry : mapping.entrySet()) {
+        // String key = entry.getKey();
+        // Mapping value = entry.getValue();
 
-                print += key + ": " + value.getClassName() + " with " + value.getMethodName() + "\n";
-            }
-        } else {
-            print += "mapping is Null \n";
-        }
+        // print += key + ": " + value.getClassName() + " with " + value.getMethodName()
+        // + "\n";
+        // }
+        // } else {
+        // print += "mapping is Null \n";
+        // }
 
         out.println(print);
         out.close();
