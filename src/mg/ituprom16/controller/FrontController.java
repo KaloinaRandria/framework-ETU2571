@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
 import jakarta.servlet.ServletContext;
@@ -63,36 +62,29 @@ public class FrontController extends HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             this.processRequest(req, resp);
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (ServletException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } 
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             this.processRequest(req, resp);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (ServletException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    protected void processRequest(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException, ClassNotFoundException {
-        PrintWriter out = resp.getWriter();
+    protected void processRequest(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            PrintWriter out = resp.getWriter();
         // out.println(req.getRequestURL());
         String print = "";
         StringBuffer requestURL = req.getRequestURL();
         String[] urlSplitter = requestURL.toString().split("/");
         String getValue = urlSplitter[urlSplitter.length - 1];
+
 
         if (this.mapping.containsKey(getValue)) {
             Mapping map = this.mapping.get(getValue);
@@ -100,6 +92,11 @@ public class FrontController extends HttpServlet {
             print += map.getClassName() + "\n";
             print += map.getMethodName() + "\n";
 
+            Class myClass = Class.forName(map.getClassName());
+            Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
+            Method myMethod = myClass.getDeclaredMethod(map.getMethodName(), new Class[0]);
+
+            print += "The Method invoke : " + (String) (myMethod.invoke(myObject, new Object[0]))  + "\n"; 
         } else {
             print = "404";
         }
@@ -126,6 +123,10 @@ public class FrontController extends HttpServlet {
 
         out.println(print);
         out.close();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        
     }
 
 }
