@@ -3,10 +3,10 @@ package mg.ituprom16.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
 import jakarta.servlet.ServletContext;
@@ -86,7 +86,7 @@ public class FrontController extends HttpServlet {
     }
 
     protected void processRequest(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException, ClassNotFoundException {
+            throws ServletException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         PrintWriter out = resp.getWriter();
         // out.println(req.getRequestURL());
         String print = "";
@@ -94,12 +94,18 @@ public class FrontController extends HttpServlet {
         String[] urlSplitter = requestURL.toString().split("/");
         String getValue = urlSplitter[urlSplitter.length - 1];
 
+
         if (this.mapping.containsKey(getValue)) {
             Mapping map = this.mapping.get(getValue);
             print += requestURL.toString() + "\n";
             print += map.getClassName() + "\n";
             print += map.getMethodName() + "\n";
 
+            Class myClass = Class.forName(map.getClassName());
+            Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
+            Method myMethod = myClass.getDeclaredMethod(map.getMethodName(), new Class[0]);
+
+             
         } else {
             print = "404";
         }
