@@ -105,7 +105,7 @@ public class FrontController extends HttpServlet {
             Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
             Method myMethod = myClass.getDeclaredMethod(map.getMethodName(), new Class[0]);
 
-             
+            print += "The Method invoke : " + (String) (myMethod.invoke(myObject, new Object[0]))  + "\n"; 
         } else {
             print = "404";
         }
