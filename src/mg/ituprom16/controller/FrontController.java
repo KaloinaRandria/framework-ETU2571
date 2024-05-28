@@ -63,31 +63,23 @@ public class FrontController extends HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             this.processRequest(req, resp);
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (ServletException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } 
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             this.processRequest(req, resp);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (ServletException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    protected void processRequest(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-        PrintWriter out = resp.getWriter();
+    protected void processRequest(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            PrintWriter out = resp.getWriter();
         // out.println(req.getRequestURL());
         String print = "";
         StringBuffer requestURL = req.getRequestURL();
@@ -132,6 +124,10 @@ public class FrontController extends HttpServlet {
 
         out.println(print);
         out.close();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        
     }
 
 }
