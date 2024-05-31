@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class ModelView {
     String url;
     HashMap<String,Object> data;
-  
+
     public ModelView(){}
 
     public ModelView(String url, HashMap<String, Object> data) {
@@ -26,7 +26,7 @@ public class ModelView {
     }
 
     public void add() {
-        
+
     }
     
 }

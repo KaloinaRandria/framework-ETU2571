@@ -26,7 +26,9 @@ public class FrontController extends HttpServlet {
         try {
             this.packageSource = this.getInitParameter("package-source");
             this.mapping = new HashMap<>();
-            this.getListeController();
+            listeController = Utils.getAllClassAnnoted(this.packageSource, Controller.class, getServletContext());
+            Utils.scanListClasses(listeController, mapping);
+            // this.getListeController();
         } catch (Exception e) {
             e.getMessage();
         }
