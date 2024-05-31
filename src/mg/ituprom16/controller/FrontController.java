@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import mg.ituprom16.annotations.Controller;
-import mg.ituprom16.annotations.Get;
 import mg.ituprom16.utilitaire.Mapping;
 import mg.ituprom16.utilitaire.Utils;
 
@@ -46,13 +45,7 @@ public class FrontController extends HttpServlet {
                         .loadClass(this.packageSource.split("classes/")[1].replace("/", ".") + className);
                 if (class1.isAnnotationPresent(Controller.class)) {
                     this.listeController.add(class1);
-                    Method[] methods = class1.getDeclaredMethods();
-                    for (int i = 0; i < methods.length; i++) {
-                        if (methods[i].isAnnotationPresent(Get.class)) {
-                            Get getAnnot = methods[i].getAnnotation(Get.class);
-                            this.mapping.put(getAnnot.value(), new Mapping(class1.getName(), methods[i].getName()));
-                        }
-                    }
+                    Utils.scanClass(class1, mapping);
                 }
             }
         }
@@ -92,7 +85,7 @@ public class FrontController extends HttpServlet {
             print += map.getClassName() + "\n";
             print += map.getMethodName() + "\n";
 
-            Class myClass = Class.forName(map.getClassName());
+            Class<?> myClass = Class.forName(map.getClassName());
             Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
             Method myMethod = myClass.getDeclaredMethod(map.getMethodName(), new Class[0]);
 
@@ -100,31 +93,10 @@ public class FrontController extends HttpServlet {
         } else {
             print = "404";
         }
-
-        // if (this.listeController != null) {
-        // for (int i = 0; i < this.listeController.size(); i++) {
-        // print += listeController.elementAt(i).getName() + "\n";
-        // }
-        // } else {
-        // print += "Aucun controller trouve";
-        // }
-
-        // if (this.mapping != null) {
-        // for (Map.Entry<String, Mapping> entry : mapping.entrySet()) {
-        // String key = entry.getKey();
-        // Mapping value = entry.getValue();
-
-        // print += key + ": " + value.getClassName() + " with " + value.getMethodName()
-        // + "\n";
-        // }
-        // } else {
-        // print += "mapping is Null \n";
-        // }
-
         out.println(print);
         out.close();
         } catch (Exception e) {
-            // TODO: handle exception
+            e.getMessage();
         }
         
     }
