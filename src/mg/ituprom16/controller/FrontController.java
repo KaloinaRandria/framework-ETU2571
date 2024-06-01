@@ -1,14 +1,10 @@
 package mg.ituprom16.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Vector;
-
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,28 +24,8 @@ public class FrontController extends HttpServlet {
             this.mapping = new HashMap<>();
             listeController = Utils.getAllClassAnnoted(this.packageSource, Controller.class, getServletContext());
             Utils.scanListClasses(listeController, mapping);
-            // this.getListeController();
         } catch (Exception e) {
             e.getMessage();
-        }
-    }
-
-    public void getListeController() throws MalformedURLException, ClassNotFoundException {
-        ServletContext servletContext = getServletContext();
-        String classpath = Utils.modifierClassPath(servletContext.getResource(this.packageSource).getPath());
-        File classPathDirectory = new File(classpath);
-        this.listeController = new Vector<Class<?>>();
-
-        for (File file : classPathDirectory.listFiles()) {
-            if (file.isFile() && file.getName().endsWith(".class")) {
-                String className = file.getName().substring(0, file.getName().length() - 6);
-                Class<?> class1 = Thread.currentThread().getContextClassLoader()
-                        .loadClass(this.packageSource.split("classes/")[1].replace("/", ".") + className);
-                if (class1.isAnnotationPresent(Controller.class)) {
-                    this.listeController.add(class1);
-                    Utils.scanClass(class1, mapping);
-                }
-            }
         }
     }
 
@@ -59,7 +35,7 @@ public class FrontController extends HttpServlet {
             this.processRequest(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
-        } 
+        }
     }
 
     @Override
@@ -74,33 +50,31 @@ public class FrontController extends HttpServlet {
     protected void processRequest(HttpServletRequest req, HttpServletResponse resp) {
         try {
             PrintWriter out = resp.getWriter();
-        // out.println(req.getRequestURL());
-        String print = "";
-        StringBuffer requestURL = req.getRequestURL();
-        String[] urlSplitter = requestURL.toString().split("/");
-        String getValue = urlSplitter[urlSplitter.length - 1];
+            String print = "";
+            StringBuffer requestURL = req.getRequestURL();
+            String[] urlSplitter = requestURL.toString().split("/");
+            String getValue = urlSplitter[urlSplitter.length - 1];
 
+            if (this.mapping.containsKey(getValue)) {
+                Mapping map = this.mapping.get(getValue);
+                print += requestURL.toString() + "\n";
+                print += map.getClassName() + "\n";
+                print += map.getMethodName() + "\n";
 
-        if (this.mapping.containsKey(getValue)) {
-            Mapping map = this.mapping.get(getValue);
-            print += requestURL.toString() + "\n";
-            print += map.getClassName() + "\n";
-            print += map.getMethodName() + "\n";
+                Class<?> myClass = Class.forName(map.getClassName());
+                Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
+                Method myMethod = myClass.getDeclaredMethod(map.getMethodName(), new Class[0]);
 
-            Class<?> myClass = Class.forName(map.getClassName());
-            Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
-            Method myMethod = myClass.getDeclaredMethod(map.getMethodName(), new Class[0]);
-
-            print += "The Method invoke : " + (String) (myMethod.invoke(myObject, new Object[0]))  + "\n"; 
-        } else {
-            print = "404";
-        }
-        out.println(print);
-        out.close();
+                print += "The Method invoke : " + (String) (myMethod.invoke(myObject, new Object[0])) + "\n";
+            } else {
+                print = "404";
+            }
+            out.println(print);
+            out.close();
         } catch (Exception e) {
             e.getMessage();
         }
-        
+
     }
 
 }
