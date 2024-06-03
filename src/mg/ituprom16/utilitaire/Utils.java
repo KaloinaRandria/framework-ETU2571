@@ -5,8 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.annotation.*;
 import java.util.HashMap;
 import java.util.Vector;
-
-import jakarta.servlet.ServletContext;
 import mg.ituprom16.annotations.Get;
 
 public class Utils {
