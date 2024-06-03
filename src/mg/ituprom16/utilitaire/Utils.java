@@ -31,11 +31,10 @@ public class Utils {
             scanClass(classes.get(i), map);
         }
     }
-    public static Vector<Class<?>> getAllClassAnnoted(String path ,Class<? extends Annotation> annotation, ServletContext servletContext) throws Exception {
+    public static Vector<Class<?>> getAllClassAnnoted(String path ,Class<? extends Annotation> annotation) throws Exception {
         Vector<Class<?>> classAnnotedList = new Vector<Class<?>>();
         try {
-            String classpath = Utils.modifierClassPath(servletContext.getResource(path).getPath()); 
-            File classPathDirectory = new File(classpath);
+            File classPathDirectory = new File(path);
             for (File file : classPathDirectory.listFiles()) {
                 if (file.isFile() && file.getName().endsWith(".class")) {
                     String className = file.getName().substring(0,file.getName().length()-6);
