@@ -26,7 +26,7 @@ public class ModelView {
     }
 
     public void addObject(String variableName , Object object) {
-        data.put(variableName, object);
+        this.getData().put(variableName, object);
     }
     
 }
