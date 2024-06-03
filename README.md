@@ -13,3 +13,5 @@ afficher le String dans la page.
 Cree une Classe ModelView 
     String url => Url de destination apres l'execution de la methode
     Hashmap(String,Object) data => String : nom de la variable , Object : sa valeur . data : donnee a envoyer vers cette view .
+    cree la methode addObject pour mettre les donnees dans hashmap .
+    
