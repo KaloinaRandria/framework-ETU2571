@@ -58,13 +58,13 @@ public class Utils {
                 Mapping mapping = map.get(urlValue);
                 Class<?> myClass = Class.forName(mapping.getClassName());
                 Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
-                Method myMethod = myClass.getDeclaredMethod(mapping.getMethodName(),new Class[0]);
+                Method myMethod = myClass.getDeclaredMethod(mapping.getMethodName(), new Class[0]);
 
                 toReturn = myMethod.invoke(myObject, new Object[0]);
             }
         } catch (Exception e) {
             e.getMessage();
-        }
+        }  
 
         return toReturn;
     }

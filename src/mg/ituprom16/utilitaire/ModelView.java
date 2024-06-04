@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class ModelView {
     String url;
-    HashMap<String,Object> data;
+    HashMap<String,Object> data = new HashMap<>();
 
     public ModelView(){}
 
@@ -27,6 +27,10 @@ public class ModelView {
 
     public void addObject(String variableName , Object object) {
         this.getData().put(variableName, object);
+    }
+
+    public ModelView(String url) {
+        this.setUrl(url);
     }
     
 }

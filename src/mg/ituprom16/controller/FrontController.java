@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Vector;
+
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import mg.ituprom16.annotations.Controller;
 import mg.ituprom16.utilitaire.Mapping;
+import mg.ituprom16.utilitaire.ModelView;
 import mg.ituprom16.utilitaire.Utils;
 
 public class FrontController extends HttpServlet {
@@ -50,26 +54,26 @@ public class FrontController extends HttpServlet {
 
     protected void processRequest(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            PrintWriter out = resp.getWriter();
+
             String print = "";
             StringBuffer requestURL = req.getRequestURL();
             String[] urlSplitter = requestURL.toString().split("/");
             String getValue = urlSplitter[urlSplitter.length - 1];
 
-            if (this.mapping.containsKey(getValue)) {
-                Mapping map = this.mapping.get(getValue);
-                print += requestURL.toString() + "\n";
-                print += map.getClassName() + "\n";
-                print += map.getMethodName() + "\n";
-
-                Class<?> myClass = Class.forName(map.getClassName());
-                Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
-                Method myMethod = myClass.getDeclaredMethod(map.getMethodName(), new Class[0]);
-
-                print += "The Method invoke : " + (String) (myMethod.invoke(myObject, new Object[0])) + "\n";
-            } else {
-                print = "404";
+            Object myObject = Utils.invokedMethod(this.mapping, getValue);
+            if (myObject instanceof String) {
+                print += "The Method invoke : " + (String) myObject;
+            } else if (myObject instanceof ModelView) {
+                ModelView modelView = (ModelView) myObject;
+                RequestDispatcher dispatcher = req.getRequestDispatcher(modelView.getUrl());
+                HashMap<String, Object> data = modelView.getData();
+                Set<String> keys = data.keySet();
+                for (String key : keys) {
+                    req.setAttribute(key, data.get(key));
+                }
+                dispatcher.forward(req, resp);
             }
+            PrintWriter out = resp.getWriter();
             out.println(print);
             out.close();
         } catch (Exception e) {
