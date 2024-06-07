@@ -28,8 +28,12 @@ public class FrontController extends HttpServlet {
             String classpath = Utils.modifierClassPath(getServletContext().getResource(this.packageSource).getPath());
             listeController = Utils.getAllClassAnnoted(classpath, Controller.class);
             Utils.scanListClasses(listeController, mapping);
-        } catch (Exception e) {
-            e.getMessage();
+        } catch(NullPointerException nullPointerException) {
+            throw new Error("Package non reconnue ", nullPointerException);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new Error(e.getMessage());
         }
     }
 
@@ -51,9 +55,9 @@ public class FrontController extends HttpServlet {
         }
     }
 
-    protected void processRequest(HttpServletRequest req, HttpServletResponse resp) {
+    protected void processRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-
+            PrintWriter out = resp.getWriter();
             String print = "";
             StringBuffer requestURL = req.getRequestURL();
             String[] urlSplitter = requestURL.toString().split("/");
@@ -71,12 +75,20 @@ public class FrontController extends HttpServlet {
                     req.setAttribute(key, data.get(key));
                 }
                 dispatcher.forward(req, resp);
+            } else {
+                String erreur = "Type de retour incompatible ";
+                throw new Exception(erreur);
             }
-            PrintWriter out = resp.getWriter();
             out.println(print);
             out.close();
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
+            if (e instanceof IllegalArgumentException) {
+                    resp.sendError(400 , e.getMessage());
+            }
+            else {
+                resp.sendError(500 , e.getMessage());
+            }
         }
 
     }

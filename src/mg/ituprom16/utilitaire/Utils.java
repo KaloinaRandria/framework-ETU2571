@@ -14,17 +14,21 @@ public class Utils {
         return classpath;
     }
 
-    public static void scanClass(Class<?> annotClass, HashMap<String, Mapping> map) {
+    public static void scanClass(Class<?> annotClass, HashMap<String, Mapping> map) throws Exception {
         Method[] methods = annotClass.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             if (methods[i].isAnnotationPresent(Get.class)) {
                 Get getAnnot = methods[i].getAnnotation(Get.class);
-                map.put(getAnnot.value(), new Mapping(annotClass.getName(), methods[i].getName()));
+                if (map.containsKey(getAnnot.value())) {
+                    throw new Exception("Url bdb mitovy anarana !!!");
+                } else {
+                    map.put(getAnnot.value(), new Mapping(annotClass.getName(), methods[i].getName()));
+                }
             }
         }
     }
 
-    public static void scanListClasses(Vector<Class<?>> classes, HashMap<String, Mapping> map) {
+    public static void scanListClasses(Vector<Class<?>> classes, HashMap<String, Mapping> map) throws Exception {
         for (int i = 0; i < classes.size(); i++) {
             scanClass(classes.get(i), map);
         }
@@ -33,7 +37,7 @@ public class Utils {
     public static Vector<Class<?>> getAllClassAnnoted(String path, Class<? extends Annotation> annotation)
             throws Exception {
         Vector<Class<?>> classAnnotedList = new Vector<Class<?>>();
-        try {
+        try { 
             File classPathDirectory = new File(path);
             for (File file : classPathDirectory.listFiles()) {
                 if (file.isFile() && file.getName().endsWith(".class")) {
@@ -45,15 +49,16 @@ public class Utils {
                     }
                 }
             }
-        } catch (Exception e) {
-            e.getMessage();
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
         return classAnnotedList;
     }
 
-    public static Object invokedMethod(HashMap<String, Mapping> map, String urlValue) {
+    public static Object invokedMethod(HashMap<String, Mapping> map, String urlValue) throws Exception {
         Object toReturn = new Object();
-        try {
             if (map.containsKey(urlValue)) {
                 Mapping mapping = map.get(urlValue);
                 Class<?> myClass = Class.forName(mapping.getClassName());
@@ -61,10 +66,9 @@ public class Utils {
                 Method myMethod = myClass.getDeclaredMethod(mapping.getMethodName(), new Class[0]);
 
                 toReturn = myMethod.invoke(myObject, new Object[0]);
-            }
-        } catch (Exception e) {
-            e.getMessage();
-        }  
+            } else {
+                throw new IllegalArgumentException("URL non reconnu");
+            } 
 
         return toReturn;
     }

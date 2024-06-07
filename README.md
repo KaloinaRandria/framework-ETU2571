@@ -16,3 +16,11 @@ Cree une Classe ModelView
     cree la methode addObject pour mettre les donnees dans hashmap .
     cree la methode invokedMethod dans la classe Utils .
     Utiliser setAttribute dans la methode processRequest 
+## sprint5 :
+Gestion d'Exception
+-Build
+    -package scan
+    -meme url
+-Request
+    -Exception : Type de retour
+    -Url : 404 not found
