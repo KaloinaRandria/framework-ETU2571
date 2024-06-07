@@ -77,7 +77,7 @@ public class FrontController extends HttpServlet {
                 dispatcher.forward(req, resp);
             } else {
                 String erreur = "Type de retour incompatible ";
-                print += erreur;
+                throw new Exception(erreur);
             }
             out.println(print);
             out.close();
