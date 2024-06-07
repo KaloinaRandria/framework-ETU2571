@@ -28,7 +28,10 @@ public class FrontController extends HttpServlet {
             String classpath = Utils.modifierClassPath(getServletContext().getResource(this.packageSource).getPath());
             listeController = Utils.getAllClassAnnoted(classpath, Controller.class);
             Utils.scanListClasses(listeController, mapping);
-        } catch (Exception e) {
+        } catch(NullPointerException nullPointerException) {
+            throw new ServletException("Package non reconnue ", nullPointerException);
+        }
+        catch (Exception e) {
             e.printStackTrace();
             throw new ServletException(e);
         }

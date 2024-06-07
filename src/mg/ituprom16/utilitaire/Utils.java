@@ -2,6 +2,7 @@ package mg.ituprom16.utilitaire;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.lang.annotation.*;
 import java.util.HashMap;
 import java.util.Vector;
@@ -37,7 +38,7 @@ public class Utils {
     public static Vector<Class<?>> getAllClassAnnoted(String path, Class<? extends Annotation> annotation)
             throws Exception {
         Vector<Class<?>> classAnnotedList = new Vector<Class<?>>();
-        try {
+        try { 
             File classPathDirectory = new File(path);
             for (File file : classPathDirectory.listFiles()) {
                 if (file.isFile() && file.getName().endsWith(".class")) {
@@ -49,8 +50,10 @@ public class Utils {
                     }
                 }
             }
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
         return classAnnotedList;
     }
@@ -67,7 +70,7 @@ public class Utils {
                 toReturn = myMethod.invoke(myObject, new Object[0]);
             }
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
         }  
 
         return toReturn;
