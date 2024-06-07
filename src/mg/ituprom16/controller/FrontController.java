@@ -29,7 +29,8 @@ public class FrontController extends HttpServlet {
             listeController = Utils.getAllClassAnnoted(classpath, Controller.class);
             Utils.scanListClasses(listeController, mapping);
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
+            throw new ServletException(e);
         }
     }
 

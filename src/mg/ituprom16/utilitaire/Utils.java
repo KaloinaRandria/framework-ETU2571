@@ -14,17 +14,21 @@ public class Utils {
         return classpath;
     }
 
-    public static void scanClass(Class<?> annotClass, HashMap<String, Mapping> map) {
+    public static void scanClass(Class<?> annotClass, HashMap<String, Mapping> map) throws Exception {
         Method[] methods = annotClass.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             if (methods[i].isAnnotationPresent(Get.class)) {
                 Get getAnnot = methods[i].getAnnotation(Get.class);
-                map.put(getAnnot.value(), new Mapping(annotClass.getName(), methods[i].getName()));
+                if (map.containsKey(getAnnot.value())) {
+                    throw new Exception("Url bdb mitovy anarana !!!");
+                } else {
+                    map.put(getAnnot.value(), new Mapping(annotClass.getName(), methods[i].getName()));
+                }
             }
         }
     }
 
-    public static void scanListClasses(Vector<Class<?>> classes, HashMap<String, Mapping> map) {
+    public static void scanListClasses(Vector<Class<?>> classes, HashMap<String, Mapping> map) throws Exception {
         for (int i = 0; i < classes.size(); i++) {
             scanClass(classes.get(i), map);
         }
@@ -46,7 +50,7 @@ public class Utils {
                 }
             }
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
         }
         return classAnnotedList;
     }
