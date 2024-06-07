@@ -2,7 +2,6 @@ package mg.ituprom16.utilitaire;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.lang.annotation.*;
 import java.util.HashMap;
 import java.util.Vector;
@@ -58,9 +57,8 @@ public class Utils {
         return classAnnotedList;
     }
 
-    public static Object invokedMethod(HashMap<String, Mapping> map, String urlValue) {
+    public static Object invokedMethod(HashMap<String, Mapping> map, String urlValue) throws Exception {
         Object toReturn = new Object();
-        try {
             if (map.containsKey(urlValue)) {
                 Mapping mapping = map.get(urlValue);
                 Class<?> myClass = Class.forName(mapping.getClassName());
@@ -68,10 +66,9 @@ public class Utils {
                 Method myMethod = myClass.getDeclaredMethod(mapping.getMethodName(), new Class[0]);
 
                 toReturn = myMethod.invoke(myObject, new Object[0]);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }  
+            } else {
+                throw new IllegalArgumentException("URL non reconnu");
+            } 
 
         return toReturn;
     }
