@@ -2,10 +2,13 @@ package mg.ituprom16.utilitaire;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.annotation.*;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Vector;
 import mg.ituprom16.annotations.Get;
+import mg.ituprom16.annotations.GetParam;
 
 public class Utils {
     public static String modifierClassPath(String classpath) {
@@ -20,7 +23,7 @@ public class Utils {
             if (methods[i].isAnnotationPresent(Get.class)) {
                 Get getAnnot = methods[i].getAnnotation(Get.class);
                 if (map.containsKey(getAnnot.value())) {
-                    throw new Exception("Url bdb mitovy anarana !!!");
+                    throw new Exception("Plusieurs URL portent le meme nom !!!");
                 } else {
                     map.put(getAnnot.value(), new Mapping(annotClass.getName(), methods[i].getName()));
                 }
@@ -57,19 +60,44 @@ public class Utils {
         return classAnnotedList;
     }
 
-    public static Object invokedMethod(HashMap<String, Mapping> map, String urlValue) throws Exception {
+    public static Object invokedMethod(HashMap<String, Mapping> map, String urlValue , HashMap<String, String> parameters) throws Exception {
         Object toReturn = new Object();
-            if (map.containsKey(urlValue)) {
+        for (int i = 0; i < map.size(); i++) {
+            if (map.get(urlValue) != null) {
                 Mapping mapping = map.get(urlValue);
                 Class<?> myClass = Class.forName(mapping.getClassName());
-                Object myObject = myClass.getDeclaredConstructor(new Class[0]).newInstance(new Object[0]);
-                Method myMethod = myClass.getDeclaredMethod(mapping.getMethodName(), new Class[0]);
+                Class<?>[] paramClasses = new Class[parameters.size()];
+                Vector<String> parameterKeys = new Vector<>();
+                Set<String> keys = parameters.keySet();
+                for (String key : keys) {
+                    parameterKeys.add(key);
+                }
 
-                toReturn = myMethod.invoke(myObject, new Object[0]);
-            } else {
+                for (int j = 0; j < paramClasses.length; j++) {
+                    paramClasses[j] = parameters.get(parameterKeys.elementAt(j)).getClass();
+                }
+
+                Object[] methodAttributs = new Object[parameters.size()];
+                Method myMethod = myClass.getDeclaredMethod(mapping.getMethodName(), paramClasses);
+                Parameter[] parameters2 = myMethod.getParameters();
+
+                int count = 0;
+                for (int j = 0; j < parameters2.length; j++) {
+                    if (parameters2[j].isAnnotationPresent(GetParam.class)) {
+                        GetParam paramAnnot = parameters2[j].getAnnotation(GetParam.class);
+                        methodAttributs[count] = parameters.get(paramAnnot.value()); 
+                    } else if(parameters.containsKey(parameters2[j].getName())) {
+                        methodAttributs[count] = parameters.get(parameters2[j].getName());
+                        count++;
+                    }
+                }
+                Object myObject = myClass.getDeclaredConstructor(new Class<?>[0]).newInstance(new Object[0]);
+                toReturn = myMethod.invoke(myObject, methodAttributs);
+            }
+            else {
                 throw new IllegalArgumentException("URL non reconnu");
             } 
-
+        }
         return toReturn;
     }
 }
