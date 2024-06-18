@@ -62,8 +62,13 @@ public class FrontController extends HttpServlet {
             StringBuffer requestURL = req.getRequestURL();
             String[] urlSplitter = requestURL.toString().split("/");
             String getValue = urlSplitter[urlSplitter.length - 1];
-
-            Object myObject = Utils.invokedMethod(this.mapping, getValue);
+            HashMap<String, String[]> arguments =(HashMap<String, String[]>) req.getParameterMap();
+            HashMap<String, String> argument = new HashMap<>();
+            Set<String> paramkeys = argument.keySet();
+            for (String key : paramkeys) {
+                argument.put(key, arguments.get(key)[0]);
+            }
+            Object myObject = Utils.invokedMethod(this.mapping, getValue,argument);
             if (myObject instanceof String) {
                 print += "The Method invoke : " + (String) myObject;
             } else if (myObject instanceof ModelView) {
