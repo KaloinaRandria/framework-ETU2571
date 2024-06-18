@@ -87,7 +87,7 @@ public class Utils {
                         GetParam paramAnnot = parameters2[j].getAnnotation(GetParam.class);
                         methodAttributs[count] = parameters.get(paramAnnot.value()); 
                     } else if(parameters.containsKey(parameters2[j].getName())) {
-                        methodAttributs[count] = parameters.get(parameters2[i].getName());
+                        methodAttributs[count] = parameters.get(parameters2[j].getName());
                         count++;
                     }
                 }
