@@ -3,6 +3,7 @@ package mg.ituprom16.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -62,7 +63,8 @@ public class FrontController extends HttpServlet {
             StringBuffer requestURL = req.getRequestURL();
             String[] urlSplitter = requestURL.toString().split("/");
             String getValue = urlSplitter[urlSplitter.length - 1];
-            HashMap<String, String[]> arguments =(HashMap<String, String[]>) req.getParameterMap();
+            
+            Map<String, String[]> arguments =req.getParameterMap();
             HashMap<String, String> argument = new HashMap<>();
             Set<String> paramkeys = argument.keySet();
             for (String key : paramkeys) {

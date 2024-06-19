@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.annotation.*;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.Vector;
 import mg.ituprom16.annotations.Get;
 import mg.ituprom16.annotations.GetParam;
@@ -60,44 +59,47 @@ public class Utils {
         return classAnnotedList;
     }
 
+    public static Method getMyMethod(String path , Method[] methods) {
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(Get.class)) {
+                Get getAnnot = method.getAnnotation(Get.class);
+                if (getAnnot.value().equals(path)) {
+                    return method;
+                }
+            }
+        }
+        return null;
+    }
+
     public static Object invokedMethod(HashMap<String, Mapping> map, String urlValue , HashMap<String, String> parameters) throws Exception {
         Object toReturn = new Object();
         for (int i = 0; i < map.size(); i++) {
             if (map.get(urlValue) != null) {
-                Mapping mapping = map.get(urlValue);
-                Class<?> myClass = Class.forName(mapping.getClassName());
-                Class<?>[] paramClasses = new Class[parameters.size()];
-                Vector<String> parameterKeys = new Vector<>();
-                Set<String> keys = parameters.keySet();
-                for (String key : keys) {
-                    parameterKeys.add(key);
-                }
-
-                for (int j = 0; j < paramClasses.length; j++) {
-                    paramClasses[j] = parameters.get(parameterKeys.elementAt(j)).getClass();
-                }
-
-                Object[] methodAttributs = new Object[parameters.size()];
-                Method myMethod = myClass.getDeclaredMethod(mapping.getMethodName(), paramClasses);
-                Parameter[] parameters2 = myMethod.getParameters();
-
-                int count = 0;
-                for (int j = 0; j < parameters2.length; j++) {
-                    if (parameters2[j].isAnnotationPresent(GetParam.class)) {
-                        GetParam paramAnnot = parameters2[j].getAnnotation(GetParam.class);
-                        methodAttributs[count] = parameters.get(paramAnnot.value()); 
-                    } else if(parameters.containsKey(parameters2[j].getName())) {
-                        methodAttributs[count] = parameters.get(parameters2[j].getName());
-                        count++;
+                    Mapping mapping = map.get(urlValue);
+                    Class<?> myClass = Class.forName(mapping.getClassName());
+                    Method[] methods = myClass.getMethods();
+                    Method myMethod = Utils.getMyMethod(urlValue, methods);
+                    Parameter[] myParameters = myMethod.getParameters();
+                    Object[] methodAttributes = new Object[myParameters.length];
+                    int count = 0;
+                    for (int j = 0; j < myParameters.length; j++) {
+                        if (myParameters[j].isAnnotationPresent(GetParam.class)) {
+                            GetParam paramAnnot = myParameters[j].getAnnotation(GetParam.class);
+                            methodAttributes[count] = parameters.get(paramAnnot.value());
+                            count ++;
+                        } else if (parameters.containsKey(myParameters[j].getName())) {
+                            methodAttributes[count] = parameters.get(myParameters[i].getName());
+                            System.out.println(methodAttributes[count] + "\n");
+                            count++;
+                        }
                     }
-                }
-                Object myObject = myClass.getDeclaredConstructor(new Class<?>[0]).newInstance(new Object[0]);
-                toReturn = myMethod.invoke(myObject, methodAttributs);
-            }
-            else {
+                    Object myObject = myClass.getDeclaredConstructor(new Class<?>[0]).newInstance(new Object[0]);
+                    toReturn = myMethod.invoke(myObject, methodAttributes);
+            } else {
                 throw new IllegalArgumentException("URL non reconnu");
             } 
         }
         return toReturn;
     }
 }
+

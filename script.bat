@@ -10,7 +10,7 @@ mkdir tempJava
 for /r %src% %%f in (*.java) do (
     copy /y "%%f" tempJava\
 )
-"%jdk_path%\bin\javac" -d javacompiler tempJava\*.java
+"%jdk_path%\bin\javac" -parameters -d javacompiler tempJava\*.java
 
 "%jdk_path%\bin\jar" cf %archive% -C javacompiler\ .
 
