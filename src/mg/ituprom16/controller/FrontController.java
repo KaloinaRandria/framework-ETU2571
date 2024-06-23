@@ -38,6 +38,19 @@ public class FrontController extends HttpServlet {
         }
     }
 
+    public String getKeySpliter(String requestURL) {
+        
+        String[] urlSplitter = requestURL.split("/");
+        String getValue = "/";
+        for (int i = 4; i < urlSplitter.length; i++) {
+            getValue += urlSplitter[i];
+            if (i < urlSplitter.length -1) {
+                getValue += "/";
+            }
+        }
+        return getValue;
+    }
+
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
@@ -60,13 +73,11 @@ public class FrontController extends HttpServlet {
         try {
             PrintWriter out = resp.getWriter();
             String print = "";
-            StringBuffer requestURL = req.getRequestURL();
-            String[] urlSplitter = requestURL.toString().split("/");
-            String getValue = urlSplitter[urlSplitter.length - 1];
-            
+        
+            String getValue = this.getKeySpliter(req.getRequestURL().toString());
             Map<String, String[]> arguments =req.getParameterMap();
             HashMap<String, String> argument = new HashMap<>();
-            Set<String> paramkeys = argument.keySet();
+            Set<String> paramkeys = arguments.keySet();
             for (String key : paramkeys) {
                 argument.put(key, arguments.get(key)[0]);
             }

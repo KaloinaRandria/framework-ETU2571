@@ -60,11 +60,11 @@ public class Utils {
     }
 
     public static Method getMyMethod(String path , Method[] methods) {
-        for (Method method : methods) {
-            if (method.isAnnotationPresent(Get.class)) {
-                Get getAnnot = method.getAnnotation(Get.class);
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].isAnnotationPresent(Get.class)) {
+                Get getAnnot = methods[i].getAnnotation(Get.class);
                 if (getAnnot.value().equals(path)) {
-                    return method;
+                    return methods[i];
                 }
             }
         }
