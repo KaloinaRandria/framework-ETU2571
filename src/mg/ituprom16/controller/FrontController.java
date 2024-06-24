@@ -92,6 +92,8 @@ public class FrontController extends HttpServlet {
                 for (String key : keys) {
                     req.setAttribute(key, data.get(key));
                 }
+                System.out.println("ModelView URL " + modelView.getUrl());
+                System.out.println("ModelView Data : " + modelView.getData());
                 dispatcher.forward(req, resp);
             } else {
                 String erreur = "Type de retour incompatible ";
