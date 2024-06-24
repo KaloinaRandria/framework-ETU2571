@@ -1,6 +1,8 @@
 package mg.ituprom16.utilitaire;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.annotation.*;
@@ -9,6 +11,7 @@ import java.util.Set;
 import java.util.Vector;
 import mg.ituprom16.annotations.Get;
 import mg.ituprom16.annotations.GetParam;
+import mg.ituprom16.annotations.ObjectParam;
 
 public class Utils {
     public static String modifierClassPath(String classpath) {
@@ -112,7 +115,7 @@ public class Utils {
         return toReturn;
     }
      
-    public static HashMap<String ,  Vector<String>> triObject(HashMap<String , String > map) {
+    public static HashMap<String, Vector<String>> triObject(HashMap<String , String > map) {
         HashMap<String , Vector<String>> toReturn = new HashMap<String , Vector<String>>();
         Vector<String> getKeys = Utils.getKeys(map);
         for (String key : getKeys) {
@@ -135,6 +138,58 @@ public class Utils {
             }
         }
         return toReturn;
+    }
+    
+    public static String getFieldName(Class<?> clazz , String fieldName) {
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.canAccess(clazz)) {
+                if (field.isAnnotationPresent(ObjectParam.class)) {
+                    ObjectParam objectAnnot = field.getAnnotation(ObjectParam.class);
+                    if (objectAnnot.value().equals(fieldName)) {
+                        return field.getName();
+                    }
+                }
+            } else {
+                field.setAccessible(true);
+                if (field.isAnnotationPresent(ObjectParam.class)) {
+                    ObjectParam objectAnnot = field.getAnnotation(ObjectParam.class);
+                    if (objectAnnot.value().equals(fieldName)) {
+                        return field.getName();
+                    }
+                }
+                field.setAccessible(false);
+            }
+        }
+        return fieldName;
+    }
+
+    public static Object buildObjectAnnoted(Parameter parameter , Vector<String> inputObject, HashMap<String, String> map)throws Exception {
+        Class<?> type = parameter.getType();
+        Constructor<?> constructor = type.getConstructor(new Class<?>[0]);
+        Object toReturn = constructor.newInstance(new Object[0]);
+        for (String string : inputObject) {
+            Field field = type.getDeclaredField();
+        }
+        return toReturn;
+    }
+    public static Object[] getObjectsAsParameter(Method method , HashMap<String, String> map) {
+        Parameter[] parameters = method.getParameters();
+        Object[] toReturn = new Object[parameters.length];
+        HashMap<String, Vector<String>> inputObject = Utils.triObject(map);
+        int count = 0;
+        for (Parameter parameter : parameters) {
+            if (parameter.isAnnotationPresent(GetParam.class)) {
+                GetParam getAnnot = parameter.getAnnotation(GetParam.class);
+                if (inputObject.get(getAnnot.value()).elementAt(0).equals("simple") == false) {
+                    Vector<String> listAttributeForClasse = inputObject.get(getAnnot.value());
+
+                }
+                
+            }
+        }
+        return toReturn;
+
     }
 }
 
