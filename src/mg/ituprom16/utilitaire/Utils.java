@@ -5,6 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.lang.annotation.*;
 import java.util.HashMap;
 import java.util.Set;
@@ -177,16 +179,25 @@ public class Utils {
             Object[] objects = new Object[1];
             String methodName = String.format("set%s", capitalizeFirstLetter(field.getName()));
             Method method;
-            if () {
-                
+            if (field.getType().equals(Date.class)) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                objects[0] = dateFormat.parse(value);
+            } else if (field.getType().equals(int.class)) {
+                objects[0] = Integer.parseInt(value);
+            } else if (field.getType().equals(double.class)) {
+                objects[0] = Double.parseDouble(value);
+            } else {
+                throw new IllegalArgumentException("Type non supporte : " + field.getType().getSimpleName());
             }
+            method = clazz.getDeclaredMethod(methodName, paramClasses);
+            method.invoke(object, objects);
         } catch (Exception e) {
             e.printStackTrace();
         }
         
 
     }
-    public static Object buildObjectAnnoted(Parameter parameter ,String paramName ,Vector<String> inputObject, HashMap<String, String> map)throws Exception {
+    public static Object buildObjectByName(Parameter parameter ,String paramName ,Vector<String> inputObject, HashMap<String, String> map)throws Exception {
         Class<?> type = parameter.getType();
         Constructor<?> constructor = type.getConstructor(new Class<?>[0]);
         Object toReturn = constructor.newInstance(new Object[0]);
@@ -194,11 +205,36 @@ public class Utils {
             Field field = type.getDeclaredField(Utils.getFieldName(type, input));
             if (field.canAccess(type)) {
                 String tempValue = map.get(paramName+":"+input);
-
+                Utils.setter(type, field, tempValue, inputObject);
+            } else {
+                field.setAccessible(true);
+                String tempValue = map.get(Utils.getFieldName(type, input));
+                Utils.setter(type, field, tempValue, inputObject);
+                field.setAccessible(false);
             }
         }
         return toReturn;
     }
+
+    public static Object buildObjectByAnnotation(Parameter parameter, Vector<String> inputObject, HashMap<String ,String> map) throws Exception {
+        Class<?> clazz = parameter.getType();
+        Constructor<?> constructor = clazz.getConstructor(new Class<?>[0]);
+        Object toReturn = constructor.newInstance(new Object[0]);
+        for (String input : inputObject) {
+            Field field = clazz.getDeclaredField(Utils.getFieldName(clazz, input));
+            if (field.canAccess(clazz)) {
+                String tempValue = map.get(parameter.getAnnotation(GetParam.class).value()+":"+input);
+                Utils.setter(clazz, field, tempValue, inputObject);
+            } else {
+                field.setAccessible(true);
+                String tempValue = map.get(parameter.getAnnotation(GetParam.class).value()+":"+input);
+                Utils.setter(clazz, field, tempValue, inputObject);
+                field.setAccessible(false);
+            }
+        }
+        return toReturn;
+    }
+
     public static Object[] getObjectsAsParameter(Method method , HashMap<String, String> map) {
         Parameter[] parameters = method.getParameters();
         Object[] toReturn = new Object[parameters.length];
