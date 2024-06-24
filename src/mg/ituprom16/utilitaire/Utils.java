@@ -86,7 +86,7 @@ public class Utils {
                     Method[] methods = myClass.getMethods();
                     Method myMethod = Utils.getMyMethod(urlValue, methods);
                     Parameter[] myParameters = myMethod.getParameters();
-                    Object[] methodAttributes = new Object[myParameters.length];
+                    Object[] methodAttributes = getObjectsAsParameter(myMethod, parameters);
                     int count = 0;
                     for (int j = 0; j < myParameters.length; j++) {
                         if (myParameters[j].isAnnotationPresent(GetParam.class)) {
