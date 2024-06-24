@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.annotation.*;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Vector;
 import mg.ituprom16.annotations.Get;
 import mg.ituprom16.annotations.GetParam;
@@ -60,11 +61,11 @@ public class Utils {
     }
 
     public static Method getMyMethod(String path , Method[] methods) {
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].isAnnotationPresent(Get.class)) {
-                Get getAnnot = methods[i].getAnnotation(Get.class);
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(Get.class)) {
+                Get getAnnot = method.getAnnotation(Get.class);
                 if (getAnnot.value().equals(path)) {
-                    return methods[i];
+                    return method;
                 }
             }
         }
@@ -102,6 +103,14 @@ public class Utils {
         return toReturn;
     }
 
+    public static Vector<String> getKeys(HashMap<String , String> map) {
+        Vector<String> toReturn = new Vector<>();
+        Set<String> keys = map.keySet();
+        for (String key : keys) {
+            toReturn.add(key);            
+        }
+        return toReturn;
+    }
     
 }
 
