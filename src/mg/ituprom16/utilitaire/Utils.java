@@ -111,6 +111,30 @@ public class Utils {
         }
         return toReturn;
     }
-    
+     
+    public static HashMap<String ,  Vector<String>> triObject(HashMap<String , String > map) {
+        HashMap<String , Vector<String>> toReturn = new HashMap<String , Vector<String>>();
+        Vector<String> getKeys = Utils.getKeys(map);
+        for (String key : getKeys) {
+            String tempKey = (key.split(":"))[0];
+            Vector<String> tempValues = new Vector<>();
+
+            if (!toReturn.containsKey(tempKey)) {
+                try {
+                    tempValues.add((key.split(":"))[1]);
+                    for (String cle : getKeys) {
+                        if ((cle.split(":"))[0].equals(tempKey)) {
+                            tempValues.add((cle.split(":"))[1]);
+                        }
+                    }
+                } catch (Exception e) {
+                    tempValues.add("simple");
+                    throw new RuntimeException();
+                }
+                toReturn.put(tempKey, tempValues);
+            }
+        }
+        return toReturn;
+    }
 }
 
