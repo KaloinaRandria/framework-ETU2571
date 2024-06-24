@@ -235,19 +235,52 @@ public class Utils {
         return toReturn;
     }
 
-    public static Object[] getObjectsAsParameter(Method method , HashMap<String, String> map) {
+    public static Object[] getObjectsAsParameter(Method method , HashMap<String, String> map) throws Exception {
         Parameter[] parameters = method.getParameters();
         Object[] toReturn = new Object[parameters.length];
         HashMap<String, Vector<String>> inputObject = Utils.triObject(map);
-        int count = 0;
+        int count = 0;        
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(GetParam.class)) {
                 GetParam getAnnot = parameter.getAnnotation(GetParam.class);
                 if (inputObject.get(getAnnot.value()).elementAt(0).equals("simple") == false) {
                     Vector<String> listAttributeForClasse = inputObject.get(getAnnot.value());
-
+                    toReturn[count] = Utils.buildObjectByAnnotation(parameter, listAttributeForClasse, map);
+                    count++;
+                } else {
+                    String value = map.get(parameter.getAnnotation(GetParam.class).value());
+                    if (parameter.getType().getSimpleName().equals("int")) {
+                        toReturn[count] = Integer.parseInt(value); 
+                    } else if (parameter.getType().getSimpleName().equals("double")) {
+                        toReturn[count] = Double.parseDouble(value);
+                    } else if (parameter.getType().getSimpleName().equals("Date")) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        toReturn[count] = dateFormat.parse(value);
+                    } else {
+                        toReturn[count] = value;
+                    }
+                    count++;
                 }
                 
+            } else if (inputObject.containsKey(parameter.getName())) {
+                if (inputObject.get(parameter.getName()).elementAt(0).equals("simple") == false) {
+                    Vector<String> listAttributeForClasse = inputObject.get(parameter.getName());
+                    toReturn[count] = buildObjectByName(parameter, null, listAttributeForClasse, map);
+                    count++;
+                } else {
+                    String value = map.get(parameter.getName());
+                    if (parameter.getType().getSimpleName().equals("int")) {
+                        toReturn[count] = Integer.parseInt(value); 
+                    } else if (parameter.getType().getSimpleName().equals("double")) {
+                        toReturn[count] = Double.parseDouble(value);
+                    } else if (parameter.getType().getSimpleName().equals("Date")) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        toReturn[count] = dateFormat.parse(value);
+                    } else {
+                        toReturn[count] = value;
+                    }
+                    count++;
+                }
             }
         }
         return toReturn;
