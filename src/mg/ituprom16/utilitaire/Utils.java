@@ -163,13 +163,39 @@ public class Utils {
         }
         return fieldName;
     }
+    public static String capitalizeFirstLetter(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
 
-    public static Object buildObjectAnnoted(Parameter parameter , Vector<String> inputObject, HashMap<String, String> map)throws Exception {
+    public static void setter(Class<?> clazz , Field field , String value , Object object) {
+        Class<?>[] paramClasses = new Class<?>[1];
+        paramClasses[0] = field.getType();
+        try {
+            Object[] objects = new Object[1];
+            String methodName = String.format("set%s", capitalizeFirstLetter(field.getName()));
+            Method method;
+            if () {
+                
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+
+    }
+    public static Object buildObjectAnnoted(Parameter parameter ,String paramName ,Vector<String> inputObject, HashMap<String, String> map)throws Exception {
         Class<?> type = parameter.getType();
         Constructor<?> constructor = type.getConstructor(new Class<?>[0]);
         Object toReturn = constructor.newInstance(new Object[0]);
-        for (String string : inputObject) {
-            Field field = type.getDeclaredField();
+        for (String input : inputObject) {
+            Field field = type.getDeclaredField(Utils.getFieldName(type, input));
+            if (field.canAccess(type)) {
+                String tempValue = map.get(paramName+":"+input);
+
+            }
         }
         return toReturn;
     }
