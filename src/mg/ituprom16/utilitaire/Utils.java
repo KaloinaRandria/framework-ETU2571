@@ -199,29 +199,6 @@ public class Utils {
         
     }
 
-    // public static void setter(Class<?> clazz , Field field , String value , Object object) {
-    //     Class<?>[] paramClasses = new Class<?>[1];
-    //     paramClasses[0] = field.getType();
-    //     try {
-    //         Object[] objects = new Object[1];
-    //         String methodName = String.format("set", capitalizeFirstLetter(field.getName()));
-    //         Method method;
-    //         if (field.getType().equals(Date.class)) {
-    //             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    //             objects[0] = dateFormat.parse(value);
-    //         } else if (field.getType().equals(int.class)) {
-    //             objects[0] = Integer.parseInt(value);
-    //         } else if (field.getType().equals(double.class)) {
-    //             objects[0] = Double.parseDouble(value);
-    //         } else {
-    //             throw new IllegalArgumentException("Type non supporte : " + field.getType().getSimpleName());
-    //         }
-    //         method = clazz.getDeclaredMethod(methodName, paramClasses);
-    //         method.invoke(object, objects);
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
     public static Object buildObjectByName(Parameter parameter ,String paramName ,Vector<String> inputObject, HashMap<String, String> map)throws Exception {
         Class<?> type = parameter.getType();
         Constructor<?> constructor = type.getConstructor(new Class<?>[0]);
