@@ -85,20 +85,8 @@ public class Utils {
                     Class<?> myClass = Class.forName(mapping.getClassName());
                     Method[] methods = myClass.getMethods();
                     Method myMethod = Utils.getMyMethod(urlValue, methods);
-                    Parameter[] myParameters = myMethod.getParameters();
                     Object[] methodAttributes = getObjectsAsParameter(myMethod, parameters);
-                    int count = 0;
-                    for (int j = 0; j < myParameters.length; j++) {
-                        if (myParameters[j].isAnnotationPresent(GetParam.class)) {
-                            GetParam paramAnnot = myParameters[j].getAnnotation(GetParam.class);
-                            methodAttributes[count] = parameters.get(paramAnnot.value());
-                            count ++;
-                        } else if (parameters.containsKey(myParameters[j].getName())) {
-                            methodAttributes[count] = parameters.get(myParameters[i].getName());
-                            System.out.println(methodAttributes[count] + "\n");
-                            count++;
-                        }
-                    }
+                   
                     Object myObject = myClass.getDeclaredConstructor(new Class<?>[0]).newInstance(new Object[0]);
                     toReturn = myMethod.invoke(myObject, methodAttributes);
             } else {
@@ -171,31 +159,69 @@ public class Utils {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    public static void setter(Class<?> clazz , Field field , String value , Object object) {
-        Class<?>[] paramClasses = new Class<?>[1];
-        paramClasses[0] = field.getType();
-        try {
-            Object[] objects = new Object[1];
-            String methodName = String.format("set%s", capitalizeFirstLetter(field.getName()));
-            Method method;
-            if (field.getType().equals(Date.class)) {
+    public static void setter(Class<?> type,Field attribut,String value,Object built)throws Exception{
+        Class<?>[] parameterTypes=new Class[1];
+        parameterTypes[0]=attribut.getType();
+        try{
+            if(attribut.getType().getSimpleName().equals("Date")){
+                Object[] lsParams=new Object[1];
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                objects[0] = dateFormat.parse(value);
-            } else if (field.getType().equals(int.class)) {
-                objects[0] = Integer.parseInt(value);
-            } else if (field.getType().equals(double.class)) {
-                objects[0] = Double.parseDouble(value);
-            } else {
-                throw new IllegalArgumentException("Type non supporte : " + field.getType().getSimpleName());
+                lsParams[0]=dateFormat.parse(value);
+                Method toUse=type.getDeclaredMethod("set"+Utils.capitalizeFirstLetter(attribut.getName()),parameterTypes);
+                toUse.invoke(built,lsParams);
+                    return;
             }
-            method = clazz.getDeclaredMethod(methodName, paramClasses);
-            method.invoke(object, objects);
-        } catch (Exception e) {
-            e.printStackTrace();
+            if(attribut.getType().getSimpleName().equals("String")){
+                Object[] lsParams=new Object[1];
+                lsParams[0]=value;
+                Method toUse=type.getDeclaredMethod("set"+Utils.capitalizeFirstLetter(attribut.getName()),parameterTypes);
+                toUse.invoke(built,lsParams);
+                return;
+            }
+            if(attribut.getType().getSimpleName().equals("int")){
+                Object[] lsParams=new Object[1];
+                lsParams[0]=Integer.valueOf(value).intValue();
+                Method toUse=type.getDeclaredMethod("set"+Utils.capitalizeFirstLetter(attribut.getName()),parameterTypes);
+                toUse.invoke(built,lsParams);
+                return;
+            }
+            if(attribut.getType().getSimpleName().equals("double")){
+                Object[] lsParams=new Object[1];
+                lsParams[0]=Double.valueOf(value).doubleValue();
+                Method toUse=type.getDeclaredMethod("set"+Utils.capitalizeFirstLetter(attribut.getName()),parameterTypes);
+                toUse.invoke(built,lsParams);
+                return;
+            }
+        }
+        catch(IllegalArgumentException e){
+            throw new IllegalArgumentException("une valeur que vous avez envoyez,n'a pas le bon type ou format");
         }
         
-
     }
+
+    // public static void setter(Class<?> clazz , Field field , String value , Object object) {
+    //     Class<?>[] paramClasses = new Class<?>[1];
+    //     paramClasses[0] = field.getType();
+    //     try {
+    //         Object[] objects = new Object[1];
+    //         String methodName = String.format("set", capitalizeFirstLetter(field.getName()));
+    //         Method method;
+    //         if (field.getType().equals(Date.class)) {
+    //             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    //             objects[0] = dateFormat.parse(value);
+    //         } else if (field.getType().equals(int.class)) {
+    //             objects[0] = Integer.parseInt(value);
+    //         } else if (field.getType().equals(double.class)) {
+    //             objects[0] = Double.parseDouble(value);
+    //         } else {
+    //             throw new IllegalArgumentException("Type non supporte : " + field.getType().getSimpleName());
+    //         }
+    //         method = clazz.getDeclaredMethod(methodName, paramClasses);
+    //         method.invoke(object, objects);
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
     public static Object buildObjectByName(Parameter parameter ,String paramName ,Vector<String> inputObject, HashMap<String, String> map)throws Exception {
         Class<?> type = parameter.getType();
         Constructor<?> constructor = type.getConstructor(new Class<?>[0]);
@@ -204,11 +230,11 @@ public class Utils {
             Field field = type.getDeclaredField(Utils.getFieldName(type, input));
             if (field.isAccessible()) {
                 String tempValue = map.get(paramName+":"+input);
-                Utils.setter(type, field, tempValue, inputObject);
+                Utils.setter(type, field, tempValue, toReturn);
             } else {
                 field.setAccessible(true);
                 String tempValue = map.get(Utils.getFieldName(type, input));
-                Utils.setter(type, field, tempValue, inputObject);
+                Utils.setter(type, field, tempValue, toReturn);
                 field.setAccessible(false);
             }
         }
@@ -223,11 +249,11 @@ public class Utils {
             Field field = clazz.getDeclaredField(Utils.getFieldName(clazz, input));
             if (field.isAccessible()) {
                 String tempValue = map.get(parameter.getAnnotation(GetParam.class).value()+":"+input);
-                Utils.setter(clazz, field, tempValue, inputObject);
+                Utils.setter(clazz, field, tempValue, toReturn);
             } else {
                 field.setAccessible(true);
                 String tempValue = map.get(parameter.getAnnotation(GetParam.class).value()+":"+input);
-                Utils.setter(clazz, field, tempValue, inputObject);
+                Utils.setter(clazz, field, tempValue, toReturn);
                 field.setAccessible(false);
             }
         }
