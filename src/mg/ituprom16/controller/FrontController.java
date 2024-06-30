@@ -103,16 +103,13 @@ public class FrontController extends HttpServlet {
             }
             out.println(print);
         } catch (Exception e) {
-            out.println(e.getMessage());
             e.printStackTrace();
-            // if (e instanceof IllegalArgumentException) {
-            //         out.println(e.getMessage());
-            //         resp.sendError(400 , e.getMessage());
-            // }
-            // else {
-            //     out.println(e.getMessage());
-            //     resp.sendError(500 , e.getMessage());
-            // }
+            if (e instanceof IllegalArgumentException) {
+                    out.println(e.getMessage());
+            }
+            else {
+                out.println(e.getMessage());
+            }
         }
         out.close();
     }
