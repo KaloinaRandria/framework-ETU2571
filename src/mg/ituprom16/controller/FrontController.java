@@ -70,8 +70,9 @@ public class FrontController extends HttpServlet {
     }
 
     protected void processRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        PrintWriter out = resp.getWriter();
+       
         try {
-            PrintWriter out = resp.getWriter();
             String print = "";
         
             String getValue = this.getKeySpliter(req.getRequestURL().toString());
@@ -98,19 +99,19 @@ public class FrontController extends HttpServlet {
             } else {
                 String erreur = "Type de retour incompatible ";
                 throw new Exception(erreur);
+    
             }
             out.println(print);
-            out.close();
         } catch (Exception e) {
             e.printStackTrace();
             if (e instanceof IllegalArgumentException) {
-                    resp.sendError(400 , e.getMessage());
+                    out.println(e.getMessage());
             }
             else {
-                resp.sendError(500 , e.getMessage());
+                out.println(e.getMessage());
             }
         }
-
+        out.close();
     }
 
 }
