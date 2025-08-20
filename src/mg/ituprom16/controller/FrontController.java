@@ -82,7 +82,7 @@ public class FrontController extends HttpServlet {
             for (String key : paramkeys) {
                 argument.put(key, arguments.get(key)[0]);
             }
-            Object myObject = Utils.invokedMethod(this.mapping, getValue,argument);
+            Object myObject = Utils.invokedMethod(this.mapping, getValue,argument,req);
             if (myObject instanceof String) {
                 print += "The Method invoke : " + (String) myObject;
             } else if (myObject instanceof ModelView) {
