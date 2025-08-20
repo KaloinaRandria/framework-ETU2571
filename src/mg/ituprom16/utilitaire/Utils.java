@@ -10,6 +10,8 @@ import java.lang.annotation.*;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Vector;
+
+import jakarta.servlet.http.HttpServletRequest;
 import mg.ituprom16.annotations.Get;
 import mg.ituprom16.annotations.GetParam;
 import mg.ituprom16.annotations.ObjectParam;
@@ -76,24 +78,28 @@ public class Utils {
         return null;
     }
 
-    public static Object invokedMethod(HashMap<String, Mapping> map, String urlValue , HashMap<String, String> parameters) throws Exception {
+    public static Object invokedMethod(HashMap<String, Mapping> map,
+                                       String urlValue,
+                                       HashMap<String, String> parameters,
+                                       HttpServletRequest req) throws Exception {
         Object toReturn = new Object();
-        for (int i = 0; i < map.size(); i++) {
-            if (map.get(urlValue) != null) {
-                    Mapping mapping = map.get(urlValue);
-                    Class<?> myClass = Class.forName(mapping.getClassName());
-                    Method[] methods = myClass.getMethods();
-                    Method myMethod = Utils.getMyMethod(urlValue, methods);
-                    Object[] methodAttributes = getObjectsAsParameter(myMethod, parameters);
-                   
-                    Object myObject = myClass.getDeclaredConstructor(new Class<?>[0]).newInstance(new Object[0]);
-                    toReturn = myMethod.invoke(myObject, methodAttributes);
-            } else {
-                throw new IllegalArgumentException("URL non reconnu");
-            } 
+        if (map.get(urlValue) != null) {
+            Mapping mapping = map.get(urlValue);
+            Class<?> myClass = Class.forName(mapping.getClassName());
+            Method[] methods = myClass.getMethods();
+            Method myMethod = Utils.getMyMethod(urlValue, methods);
+
+            // 👇 ici on passe req
+            Object[] methodAttributes = getObjectsAsParameter(myMethod, parameters, req);
+
+            Object myObject = myClass.getDeclaredConstructor().newInstance();
+            toReturn = myMethod.invoke(myObject, methodAttributes);
+        } else {
+            throw new IllegalArgumentException("URL non reconnu");
         }
         return toReturn;
     }
+
 
     public static Vector<String> getKeys(HashMap<String , String> map) {
         Vector<String> toReturn = new Vector<>();
@@ -235,40 +241,42 @@ public class Utils {
         }
         return toReturn;
     }
-    public static Object[] getObjectsAsParameter(Method method, HashMap<String, String> map) throws Exception {
+    public static Object[] getObjectsAsParameter(Method method,
+                                                 HashMap<String, String> map,
+                                                 HttpServletRequest req) throws Exception {
         Parameter[] parameters = method.getParameters();
         Object[] toReturn = new Object[parameters.length];
         HashMap<String, Vector<String>> inputObject = Utils.triObject(map);
         int count = 0;
-    
+
         for (Parameter parameter : parameters) {
+            // 🔹 Si paramètre est de type MySession
+            if (parameter.getType().equals(mg.ituprom16.utilitaire.MySession.class)) {
+                toReturn[count] = new mg.ituprom16.utilitaire.MySession(req.getSession());
+                count++;
+                continue;
+            }
+
             String paramName = null;
             Vector<String> listAttributeForClasse = null;
-    
+
             if (parameter.isAnnotationPresent(GetParam.class)) {
                 GetParam getAnnot = parameter.getAnnotation(GetParam.class);
                 paramName = getAnnot.value();
                 listAttributeForClasse = inputObject.get(paramName);
-            } 
-            // else if (inputObject.containsKey(parameter.getName())) {
-            //     paramName = parameter.getName();
-            //     listAttributeForClasse = inputObject.get(paramName);
-            // }
-            else {
+            } else {
                 throw new IllegalArgumentException("ETU2571 l'argument " + parameter + " n'est pas annote");
             }
-    
+
             if (listAttributeForClasse == null) {
                 throw new NullPointerException("No value found in inputObject for key: " + paramName);
             }
-    
-            if (listAttributeForClasse.elementAt(0).equals("simple") == false) {
+
+            if (!listAttributeForClasse.elementAt(0).equals("simple")) {
                 if (parameter.isAnnotationPresent(GetParam.class)) {
                     toReturn[count] = Utils.buildObjectByAnnotation(parameter, listAttributeForClasse, map);
-                } 
-                else {
+                } else {
                     throw new IllegalArgumentException("ETU2571 l'argument " + parameter + " n'est pas annote");
-                    // toReturn[count] = buildObjectByName(parameter, paramName, listAttributeForClasse, map);
                 }
                 count++;
             } else {
@@ -291,6 +299,7 @@ public class Utils {
         }
         return toReturn;
     }
-    
+
+
 }
 
